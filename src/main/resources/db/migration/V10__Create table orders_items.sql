@@ -1,8 +1,8 @@
 CREATE TABLE `spring_shop`.`orders_item` (
                                              `id` INT NOT NULL AUTO_INCREMENT,
                                              `quantity` INT NOT NULL,
-                                             `item_price` DOUBLE NOT NULL,
-                                             `total_price` DOUBLE NOT NULL,
+                                             `item_price` DECIMAL(12,2) NOT NULL,
+                                             `total_price` DECIMAL(12,2) NOT NULL,
                                              `product_id` INT NOT NULL,
                                              `order_id` INT NOT NULL,
                                              PRIMARY KEY (`id`),
