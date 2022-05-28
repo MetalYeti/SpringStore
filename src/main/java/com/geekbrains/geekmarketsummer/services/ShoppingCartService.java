@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
 
 @Service
 public class ShoppingCartService {
@@ -60,7 +61,7 @@ public class ShoppingCartService {
         cart.setQuantity(product, quantity);
     }
 
-    public double getTotalCost(HttpSession session) {
+    public BigDecimal getTotalCost(HttpSession session) {
         return getCurrentCart(session).getTotalCost();
     }
 }

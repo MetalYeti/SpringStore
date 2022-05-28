@@ -4,17 +4,18 @@ import com.geekbrains.geekmarketsummer.entites.OrderItem;
 import com.geekbrains.geekmarketsummer.entites.Product;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 @Data
 public class ShoppingCart {
     private List<OrderItem> items;
-    private Double totalCost;
+    private BigDecimal totalCost;
 
     public ShoppingCart() {
         items = new ArrayList<>();
-        totalCost = 0.0;
+        totalCost = BigDecimal.ZERO;
     }
 
     public void add(Product product) {
@@ -25,7 +26,7 @@ public class ShoppingCart {
             orderItem.setItemPrice(product.getPrice());
             orderItem.setQuantity(0L);
             orderItem.setId(0L);
-            orderItem.setTotalPrice(0.0);
+            orderItem.setTotalPrice(BigDecimal.ZERO);
             items.add(orderItem);
         }
         orderItem.setQuantity(orderItem.getQuantity() + 1);
@@ -51,10 +52,10 @@ public class ShoppingCart {
     }
 
     private void recalculate() {
-        totalCost = 0.0;
+        totalCost = BigDecimal.ZERO;
         for (OrderItem o : items) {
-            o.setTotalPrice(o.getQuantity() * o.getProduct().getPrice());
-            totalCost += o.getTotalPrice();
+            o.setTotalPrice(o.getProduct().getPrice().multiply(BigDecimal.valueOf(o.getQuantity())));
+            totalCost = totalCost.add(o.getTotalPrice());
         }
     }
 
