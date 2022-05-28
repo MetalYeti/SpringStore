@@ -5,6 +5,9 @@ import com.geekbrains.geekmarketsummer.entites.Product;
 import com.geekbrains.geekmarketsummer.entites.User;
 import com.geekbrains.geekmarketsummer.repositories.specifications.ProductSpecs;
 import com.geekbrains.geekmarketsummer.services.*;
+import com.geekbrains.geekmarketsummer.utils.ShoppingCart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,6 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -29,6 +34,7 @@ public class ShopController {
     private ProductService productService;
     private ShoppingCartService shoppingCartService;
     private DeliveryAddressService deliverAddressService;
+    private Logger logger = LoggerFactory.getLogger(ShopController.class);
 
     @Autowired
     public void setProductService(ProductService productService) {
@@ -122,17 +128,30 @@ public class ShopController {
         return "redirect:" + referrer;
     }
 
+
+    @GetMapping("/order/fill")
+    public String orderFill(HttpSession httpSession, Model model, Principal principal){
+        User user = userService.findByUserName(principal.getName());
+        ShoppingCart cart = shoppingCartService.getCurrentCart(httpSession);
+        model.addAttribute("cart", cart);
+        model.addAttribute("order", new Order());
+        model.addAttribute("addresses", deliverAddressService.getUserAddresses(user.getId()));
+        return "order-form";
+    }
+
+
     @PostMapping("/order/confirm")
     public String orderConfirm(Model model, HttpServletRequest httpServletRequest, @ModelAttribute(name = "order") Order orderFromFrontend, Principal principal) {
         if (principal == null) {
             return "redirect:/login";
         }
+        //logger.info(orderFromFrontend.toString());
         User user = userService.findByUserName(principal.getName());
         Order order = orderService.makeOrder(shoppingCartService.getCurrentCart(httpServletRequest.getSession()), user);
         order.setDeliveryAddress(orderFromFrontend.getDeliveryAddress());
         order.setPhoneNumber(orderFromFrontend.getPhoneNumber());
         order.setDeliveryDate(LocalDateTime.now().plusDays(7));
-        order.setDeliveryPrice(0.0);
+        order.setDeliveryPrice(BigDecimal.ZERO);
         order = orderService.saveOrder(order);
         model.addAttribute("order", order);
         return "order-filler";
