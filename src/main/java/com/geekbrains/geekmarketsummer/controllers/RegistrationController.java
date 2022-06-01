@@ -39,7 +39,7 @@ public class RegistrationController {
         return "registration-form";
     }
 
-    // Binding Result после @ValidModel !!!
+
     @PostMapping("/processRegistrationForm")
     public String processRegistrationForm(@Valid @ModelAttribute("systemUser") SystemUser theSystemUser, BindingResult theBindingResult, Model theModel) {
         String userName = theSystemUser.getUserName();
