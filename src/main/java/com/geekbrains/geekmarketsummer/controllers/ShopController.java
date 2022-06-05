@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +35,8 @@ public class ShopController {
     private ProductService productService;
     private ShoppingCartService shoppingCartService;
     private DeliveryAddressService deliverAddressService;
+    private SimpMessagingTemplate template;
+
     private Logger logger = LoggerFactory.getLogger(ShopController.class);
 
     @Autowired
@@ -64,6 +67,11 @@ public class ShopController {
     @Autowired
     public void setMailService(MailService mailService) {
         this.mailService = mailService;
+    }
+
+    @Autowired
+    public void setTemplate(SimpMessagingTemplate template) {
+        this.template = template;
     }
 
     @GetMapping
@@ -112,7 +120,6 @@ public class ShopController {
     public String addProductToCart(Model model, @PathVariable("id") Long id, HttpServletRequest httpServletRequest) {
         shoppingCartService.addToCart(httpServletRequest.getSession(), id);
         String referrer = httpServletRequest.getHeader("referer");
-
 //        ConnectionFactory factory = new ConnectionFactory();
 //        factory.setHost("localhost");
 //        try (Connection connection = factory.newConnection();

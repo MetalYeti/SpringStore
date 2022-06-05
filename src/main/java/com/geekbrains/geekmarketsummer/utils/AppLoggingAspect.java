@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpSession;
@@ -22,8 +23,14 @@ public class AppLoggingAspect {
     private Logger logger = LoggerFactory.getLogger(AppLoggingAspect.class);
     private Map<String, Long> services = Collections.synchronizedMap(new HashMap<>());
 
+    private final HttpSession httpSession;
+    private SimpMessagingTemplate template;
+
     @Autowired
-    private HttpSession httpSession;
+    public AppLoggingAspect(HttpSession httpSession, SimpMessagingTemplate template) {
+        this.httpSession = httpSession;
+        this.template = template;
+    }
 
 
     @After("execution(* com.geekbrains.geekmarketsummer..*(..,com.geekbrains.geekmarketsummer.entites.Product+,..))")
@@ -43,7 +50,7 @@ public class AppLoggingAspect {
     public void removeFromCart(){}
 
     @After(value="addToCart() || removeFromCart()")
-    public void recalculateCart(){
+    public void recalculateCart() throws InterruptedException {
         ShoppingCart cart = (ShoppingCart) httpSession.getAttribute("cart");
         logger.info("Cart total cost: " + cart.getTotalCost());
     }
