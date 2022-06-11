@@ -1,5 +1,6 @@
 package com.geekbrains.geekmarketsummer.controllers;
 
+import com.geekbrains.geekmarketsummer.entites.CustomPage;
 import com.geekbrains.geekmarketsummer.entites.Order;
 import com.geekbrains.geekmarketsummer.entites.Product;
 import com.geekbrains.geekmarketsummer.entites.User;
@@ -10,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -21,6 +24,7 @@ import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -36,8 +40,14 @@ public class ShopController {
     private ShoppingCartService shoppingCartService;
     private DeliveryAddressService deliverAddressService;
     private SimpMessagingTemplate template;
+    private ProductClient productClient;
 
     private Logger logger = LoggerFactory.getLogger(ShopController.class);
+
+    @Autowired
+    public void setProductClient(ProductClient productClient) {
+        this.productClient = productClient;
+    }
 
     @Autowired
     public void setProductService(ProductService productService) {
@@ -98,7 +108,9 @@ public class ShopController {
             filters.append("&max=" + max);
         }
 
-        Page<Product> products = productService.getProductsWithPagingAndFiltering(currentPage, PAGE_SIZE, spec);
+        //Page<Product> products = productService.getProductsWithPagingAndFiltering(currentPage, PAGE_SIZE, spec);
+        CustomPage<Product> productsList = productClient.getProductsWithPagingAndFiltering(currentPage, PAGE_SIZE, word, min, max);
+        Page<Product> products = new PageImpl<>(productsList.getList(), PageRequest.of(currentPage,PAGE_SIZE), productsList.getTotalCount());
 
         model.addAttribute("products", products.getContent());
         model.addAttribute("page", currentPage);
@@ -137,7 +149,7 @@ public class ShopController {
 
 
     @GetMapping("/order/fill")
-    public String orderFill(HttpSession httpSession, Model model, Principal principal){
+    public String orderFill(HttpSession httpSession, Model model, Principal principal) {
         User user = userService.findByUserName(principal.getName());
         ShoppingCart cart = shoppingCartService.getCurrentCart(httpSession);
         model.addAttribute("cart", cart);

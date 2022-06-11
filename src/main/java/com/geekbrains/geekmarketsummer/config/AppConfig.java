@@ -1,5 +1,6 @@
 package com.geekbrains.geekmarketsummer.config;
 
+
 import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
