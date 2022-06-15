@@ -51,9 +51,8 @@ public class ShoppingCartService {
     }
 
     public void setProductCount(HttpSession session, Long productId, Long quantity) {
-        ShoppingCart cart = getCurrentCart(session);
         Product product = productService.getProductById(productId);
-        cart.setQuantity(product, quantity);
+        setProductCount(session, product, quantity);
     }
 
     public void setProductCount(HttpSession session, Product product, Long quantity) {
