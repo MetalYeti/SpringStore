@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .antMatchers("/app/**", "/cart/**", "/cart-messaging").permitAll()
-                .antMatchers("/register/**").permitAll()
+                .antMatchers("/register/**", "/storefile/**", "/getfile/**", "/getfiles/**").permitAll()
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 .antMatchers("/products/**").hasRole("ADMIN")
                 .antMatchers("/shop/order/**").authenticated()
@@ -52,7 +52,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .logout()
                 .logoutSuccessUrl("/shop")
-                .permitAll();
+                .permitAll()
+                .and()
+                .csrf().disable();
     }
 
     @Bean
